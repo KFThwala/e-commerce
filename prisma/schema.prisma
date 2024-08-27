@@ -10,6 +10,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Product {
+  id                     String                 @id @default(uuid())
+  name                   String
+  priceInCents           Int
+  filePath               String
+  imagePath              String
+  description            String
+  isAvailableForPurchase Boolean                @default(true)
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  orders                 Order[]
+  downloadVerifications  DownloadVerification[]
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -18,35 +32,22 @@ model User {
   orders    Order[]
 }
 
-model Product {
-  id                     String                 @id @default(uuid())
-  name                   String
-  description            String
-  priceInCents           Int
-  imagePath              String
-  isAvailableForPurchase Boolean
-  filePath               String
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
-  orders                 Order[]
-  downloadVerifications  DownloadVerification[]
-}
-
 model Order {
   id               String   @id @default(uuid())
   pricePaidInCents Int
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  userId           String
-  productId        String
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product          Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  userId    String
+  productId String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 }
 
 model DownloadVerification {
   id        String   @id @default(uuid())
-  productId String
-  expireAt  DateTime
+  expiresAt DateTime
   createdAt DateTime @default(now())
+  productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
